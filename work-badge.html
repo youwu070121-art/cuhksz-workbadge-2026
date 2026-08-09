@@ -32,7 +32,7 @@
       width:max-content; height:max-content;
     }
     .wrap{ position:relative; }
-    .badge-wrap{ position:relative; padding-top:110px; }
+    .badge-wrap{ position:relative; padding-top:140px; }
 
     /* ========== 证件卡外观 ========== */
     .badge{
@@ -85,6 +85,37 @@
     /* Quiz 卡片固定高度，防止切题时跳动 */
     #quizCard{ min-height:720px; }
     #quizCard .panel{ min-height:420px; }
+    /* 信息页 - 居中垂直布局 */
+    #infoCard{ min-height:720px; }
+    #infoCard .title{ margin-top:72px; font-size:34px; }
+    #infoCard .subtitle{ margin-bottom:32px; font-size:14px; }
+    #infoCard .panel{
+      min-height:0; padding:32px 32px 28px; display:flex; flex-direction:column;
+      align-items:center; gap:28px; background:transparent;
+      box-shadow:none; border:none; margin-top:0;
+    }
+    #infoCard .name-wrap{ width:100%; max-width:280px; }
+    #infoCard .name-wrap .label{
+      text-align:center; font-size:15px; font-weight:700; margin-bottom:14px; color:#333;
+    }
+    #infoCard .name-wrap .field{
+      height:48px; background:#fff; border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,.08);
+      padding:0 16px; display:flex; align-items:center;
+    }
+    #infoCard .name-wrap .field::after{ display:none; }
+    #infoCard .name-wrap .input{
+      font-size:18px; text-align:center; font-weight:600;
+    }
+    #infoCard .avatar-wrap{ display:flex; flex-direction:column; align-items:center; gap:12px; }
+    #infoCard .avatar-upload{
+      width:120px; height:120px; border-radius:50%; background:#f0f0f0; overflow:hidden;
+      box-shadow:0 4px 16px rgba(0,0,0,.08); cursor:pointer; position:relative;
+      display:flex; align-items:center; justify-content:center; transition:all .2s;
+    }
+    #infoCard .avatar-upload:hover{ box-shadow:0 6px 20px rgba(0,0,0,.12); }
+    #infoCard .avatar-upload img{ width:100%; height:100%; object-fit:cover; display:block; border-radius:50%; }
+    .photo-tip{ font-size:13px; color:#777; line-height:1.5; text-align:center; }
+    .photo-note{ font-size:12px; color:#aaa; }
 
     /* ========== 题目 ========== */
     .q-text{ font-size:15px; font-weight:700; margin:0 0 12px; line-height:1.5; text-align:center; }
@@ -218,6 +249,14 @@
     }
     .qr-label{ font-size:13px; font-weight:700; color:#333; }
 
+    /* ========== 分数条 ========== */
+    .score-row{ display:flex; align-items:center; gap:6px; margin-bottom:6px; }
+    .score-label{ flex:0 0 64px; font-size:11px; font-weight:700; text-align:right; white-space:nowrap; }
+    .score-bar-wrap{ flex:1; height:12px; background:#f0f0f0; border-radius:6px; overflow:hidden; border:1.5px solid #ccc; }
+    .score-bar-fill{ height:100%; border-radius:5px; transition:width .4s ease; }
+    .score-bar-fill.highlight{ background:linear-gradient(90deg,#FF6B6B,#FF3366); }
+    .score-bar-fill.normal{ background:linear-gradient(90deg,#A78BFA,#7C5CFF); }
+
     /* ========== Toast ========== */
     .toast{
       position:fixed; top:20px; left:50%;
@@ -247,8 +286,38 @@
 <body>
   <div class="toast" id="toast"></div>
 
-  <!-- ==================== 第1页：排序测试 ==================== -->
-  <div class="page active" id="quizPage">
+  <!-- ==================== 第1页：填写信息 ==================== -->
+  <div class="page active" id="infoPage">
+    <div class="stage"><div class="wrap scene">
+      <div class="badge" id="infoCard">
+        <div class="content">
+          <div class="title">填写信息</div>
+          <div class="subtitle">请先填写姓名和照片，再开始答题</div>
+          <div class="panel">
+            <div class="name-wrap">
+              <div class="label">你的名字</div>
+              <div class="field">
+                <input class="input" type="text" id="nameInput" placeholder="请输入姓名" maxlength="12" />
+              </div>
+            </div>
+            <div class="avatar-wrap">
+              <div class="avatar-upload" onclick="document.getElementById('photoInput').click()">
+                <img id="photoPreview" alt="预览" />
+              </div>
+              <div class="photo-tip">点击上传照片 <span class="photo-note">（可不上传）</span></div>
+            </div>
+            <input type="file" id="photoInput" accept="image/*" class="hidden" />
+          </div>
+          <div class="btn-row">
+            <button class="btn" id="startBtn" onclick="startQuiz()">开始答题 →</button>
+          </div>
+        </div>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- ==================== 第2页：趣味测试 ==================== -->
+  <div class="page" id="quizPage">
     <div class="stage"><div class="wrap scene">
       <div class="badge" id="quizCard">
         <div class="content">
@@ -262,50 +331,6 @@
           <div class="btn-row">
             <button class="btn btn-outline" id="prevBtn" onclick="prevQuestion()">← 上一题</button>
             <button class="btn" id="nextBtn" disabled onclick="nextQuestion()">下一题</button>
-          </div>
-        </div>
-      </div>
-    </div></div>
-  </div>
-
-  <!-- ==================== 第2页：匹配结果 + 信息输入 ==================== -->
-  <div class="page" id="resultPage">
-    <div class="stage"><div class="wrap scene">
-      <div class="badge">
-        <div class="content">
-          <div class="title">你的匹配部门</div>
-          <div class="dept-card">
-            <div class="dept-icon" id="deptIcon"></div>
-            <div class="dept-name" id="deptName"></div>
-            <div class="dept-desc" id="deptDesc"></div>
-          </div>
-          <div class="panel">
-            <div class="form" autocomplete="off">
-              <div class="row">
-                <strong>姓名</strong>
-                <div class="field">
-                  <input class="input" type="text" id="nameInput" placeholder="（未填写）" maxlength="12" />
-                </div>
-              </div>
-              <div class="row">
-                <strong>照片</strong>
-                <div style="flex:1;display:flex;gap:12px;align-items:center;">
-                  <div class="preview" style="justify-content:flex-start;">
-                    <div class="box" onclick="document.getElementById('photoInput').click()">
-                      <img id="photoPreview" alt="预览" />
-                    </div>
-                  </div>
-                  <div class="preview .tip" style="flex:1;">点击照片框<br/>上传图片</div>
-                </div>
-                <input type="file" id="photoInput" accept="image/*" class="hidden" />
-              </div>
-            </div>
-          </div>
-          <div class="btn-row">
-            <div class="btn-group">
-              <button class="btn btn-outline" onclick="goToQuiz()">← 重做</button>
-              <button class="btn" onclick="generateBadge()">生成工作证</button>
-            </div>
           </div>
         </div>
       </div>
@@ -333,16 +358,26 @@
             </div>
           </div>
         </section>
-        <section class="panel" aria-label="学生会公众号" style="margin:24px 28px 32px; text-align:center; padding:18px 18px 24px;">
-          <h3 style="margin:0 0 12px; font-size:18px; font-weight:800; letter-spacing:1px;">关注学生会公众号</h3>
-          <img class="qr-img" id="qrCode" src="qrcode.jpg" alt="学生会公众号二维码"
-               onerror="this.style.display='none'" style="margin:0 auto;" />
-        </section>
+        <div class="panel" style="margin:12px 28px 0; padding:12px 14px;">
+          <div style="font-size:13px; font-weight:800; margin-bottom:8px; text-align:center;">我的能力</div>
+          <div id="abilityBars"></div>
+        </div>
+        <div style="display:flex; gap:12px; margin:14px 28px 20px;">
+          <div class="panel" style="flex:1.5; margin:0; padding:14px;">
+            <div style="font-size:13px; font-weight:800; margin-bottom:10px; text-align:center;">部门匹配度</div>
+            <div id="scoreBars"></div>
+          </div>
+          <div style="flex:1; text-align:center; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#fff; border-radius:14px; box-shadow: inset 0 0 0 3px var(--border); padding:10px 6px;">
+            <img class="qr-img" id="qrCode" src="qrcode.jpg" alt="学生会公众号二维码"
+                 onerror="this.style.display='none'" style="width:90px;height:90px;border:2px solid #000;" />
+            <span style="font-size:10px; font-weight:700; margin-top:4px; color:#333;">关注学生会</span>
+          </div>
+        </div>
       </main>
     </div></div>
 
-    <div class="action-row">
-      <button class="btn-sm btn-back" onclick="goToResult()">← 返回修改</button>
+    <div class="action-row" style="margin-top:8px;">
+      <button class="btn-sm btn-back" onclick="goToQuiz()">← 重新答题</button>
       <button class="btn-sm btn-dl" onclick="downloadBadge()">↓ 保存工作证</button>
     </div>
   </div>
@@ -417,13 +452,12 @@
       }
     ];
 
-    /* ========== 默认头像（3:4 占位 SVG） ========== */
+    /* ========== 默认头像（圆形占位 SVG） ========== */
     var DEFAULT_PHOTO = 'data:image/svg+xml;utf8,' + encodeURIComponent(
-      '<svg xmlns="http://www.w3.org/2000/svg" width="300" height="400" viewBox="0 0 300 400">' +
-      '<rect width="100%" height="100%" fill="#fff"/>' +
-      '<rect x="10" y="10" width="280" height="380" rx="18" fill="none" stroke="#000" stroke-width="4"/>' +
-      '<circle cx="150" cy="140" r="60" fill="#bbb"/>' +
-      '<rect x="60" y="220" width="180" height="120" rx="24" fill="#bbb"/>' +
+      '<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">' +
+      '<circle cx="100" cy="100" r="100" fill="#f0f0f0"/>' +
+      '<circle cx="100" cy="80" r="32" fill="#ccc"/>' +
+      '<path d="M40 180 C40 140, 160 140, 160 180 Z" fill="#ccc"/>' +
       '</svg>'
     );
 
@@ -435,8 +469,8 @@
     var userName = '';
 
     /* ========== DOM ========== */
+    var $infoPage   = document.getElementById('infoPage');
     var $quizPage   = document.getElementById('quizPage');
-    var $resultPage = document.getElementById('resultPage');
     var $badgePage  = document.getElementById('badgePage');
     var $qText      = document.getElementById('qText');
     var $optionsList= document.getElementById('optionsList');
@@ -445,6 +479,7 @@
     var $progressBar= document.getElementById('progressBar');
     var $quizProgress = document.getElementById('quizProgress');
     var $toast      = document.getElementById('toast');
+    var $scoreBars  = document.getElementById('scoreBars');
 
     /* ========== Toast ========== */
     var toastTimer = null;
@@ -471,6 +506,19 @@
     window.addEventListener('load', fitStage);
     window.addEventListener('resize', fitStage, { passive:true });
 
+    /* ========== 开始答题 ========== */
+    function startQuiz(){
+      var nameVal = document.getElementById('nameInput').value.trim();
+      if(!nameVal){ showToast('请先填写姓名'); return; }
+      userName = nameVal;
+      switchPage('quizPage');
+      currentQ = 0;
+      answers = {};
+      renderQuestion();
+      fitStage();
+      window.scrollTo({ top:0, behavior:'smooth' });
+    }
+
     /* ========== 渲染题目 ========== */
     function renderQuestion(){
       var q = QUESTIONS[currentQ];
@@ -478,7 +526,7 @@
       $quizProgress.textContent = '第 ' + (currentQ+1) + ' / 5 题';
       $progressBar.style.width = (currentQ/5*100) + '%';
       $nextBtn.disabled = true;
-      $nextBtn.textContent = currentQ === 4 ? '查看结果' : '下一题';
+      $nextBtn.textContent = currentQ === 4 ? '生成工作证' : '下一题';
       $prevBtn.style.display = currentQ === 0 ? 'none' : '';
 
       var html = '';
@@ -508,7 +556,7 @@
         fitStage();
       } else {
         calculateResult();
-        showResultPage();
+        generateBadge();
       }
     }
 
@@ -542,47 +590,107 @@
       matchedDept = winners[Math.floor(Math.random() * winners.length)];
     }
 
-    function showResultPage(){
-      var dept = DEPT_MAP[matchedDept];
-      document.getElementById('deptIcon').textContent = dept.icon;
-      document.getElementById('deptName').textContent = dept.name;
-      document.getElementById('deptDesc').textContent = dept.desc;
-      switchPage('resultPage');
-      fitStage();
-      window.scrollTo({ top:0, behavior:'smooth' });
-    }
-
     function goToQuiz(){
       switchPage('quizPage');
+      answers = {};
+      renderQuestion();
       fitStage();
       window.scrollTo({ top:0, behavior:'smooth' });
     }
 
-    function goToResult(){
-      switchPage('resultPage');
-      fitStage();
-      window.scrollTo({ top:0, behavior:'smooth' });
+    /* ========== 随机分数条 ========== */
+    function randomScores(matchedKey){
+      var deptKeys = ['A','B','C','D','E','F'];
+      // 为除匹配部门外的部门生成随机分数，匹配部门设为最高档
+      var scores = {};
+      var maxOther = 0;
+      deptKeys.forEach(function(k){
+        if(k === matchedKey){
+          scores[k] = 85 + Math.floor(Math.random() * 16); // 85-100
+        } else {
+          scores[k] = 30 + Math.floor(Math.random() * 46); // 30-75
+          if(scores[k] > maxOther) maxOther = scores[k];
+        }
+      });
+      // 确保匹配部门是最高的
+      if(scores[matchedKey] <= maxOther){
+        scores[matchedKey] = maxOther + 5 + Math.floor(Math.random() * 16);
+      }
+      return scores;
+    }
+
+    function renderScoreBars(matchedKey){
+      var scores = randomScores(matchedKey);
+      var deptKeys = ['A','B','C','D','E','F'];
+      var html = '';
+      deptKeys.forEach(function(k){
+        var dept = DEPT_MAP[k];
+        var isMatch = k === matchedKey;
+        html += '<div class="score-row">'
+          + '<span class="score-label" style="color:' + (isMatch ? '#000' : '#888') + '">' + dept.name + '</span>'
+          + '<div class="score-bar-wrap">'
+          + '<div class="score-bar-fill ' + (isMatch ? 'highlight' : 'normal') + '" style="width:' + scores[k] + '%"></div>'
+          + '</div>'
+          + '</div>';
+      });
+      $scoreBars.innerHTML = html;
     }
 
     /* ========== 生成工作证 ========== */
     function generateBadge(){
-      var nameVal = document.getElementById('nameInput').value.trim();
-      if(!nameVal){ showToast('请输入姓名'); return; }
-      userName = nameVal;
-
       document.getElementById('badgePhoto').src = photoData || DEFAULT_PHOTO;
       document.getElementById('badgeName').textContent = userName;
       document.getElementById('badgeDept').textContent = DEPT_MAP[matchedDept].name;
+      renderScoreBars(matchedDept);
+      renderAbilityBars();
 
       switchPage('badgePage');
       fitStage();
       window.scrollTo({ top:0, behavior:'smooth' });
-      showToast('工作证已生成！');
+
+      // 预转换外部图片为 data URL，确保保存功能可靠
+      setTimeout(function(){
+        convertImgToDataURL(document.querySelector('#badgeCard .logo-img'));
+        convertImgToDataURL(document.querySelector('#qrCode'));
+      }, 200);
+    }
+
+    function renderAbilityBars(){
+      var abilities = [
+        { name:'续航能力',   color:'linear-gradient(90deg,#36D399,#10B981)' },
+        { name:'灵感爆发力', color:'linear-gradient(90deg,#FB923C,#F97316)' },
+        { name:'社交能力',   color:'linear-gradient(90deg,#60A5FA,#3B82F6)' },
+        { name:'拖延能力',   color:'linear-gradient(90deg,#F472B6,#EC4899)' }
+      ];
+      var html = '';
+      abilities.forEach(function(item){
+        var val = 55 + Math.floor(Math.random() * 41); // 55-95
+        html += '<div class="score-row">'
+          + '<span class="score-label" style="flex:0 0 60px; font-size:10px;">' + item.name + '</span>'
+          + '<div class="score-bar-wrap">'
+          + '<div class="score-bar-fill" style="width:' + val + '%; background:' + item.color + '"></div>'
+          + '</div>'
+          + '</div>';
+      });
+      document.getElementById('abilityBars').innerHTML = html;
+    }
+
+    function convertImgToDataURL(imgEl){
+      if(!imgEl || imgEl.src.startsWith('data:')) return;
+      var tmp = new Image();
+      tmp.onload = function(){
+        var c = document.createElement('canvas');
+        c.width = tmp.naturalWidth;
+        c.height = tmp.naturalHeight;
+        c.getContext('2d').drawImage(tmp, 0, 0);
+        imgEl.src = c.toDataURL('image/png');
+      };
+      tmp.src = imgEl.src;
     }
 
     /* ========== 页面切换 ========== */
     function switchPage(pageId){
-      [$quizPage, $resultPage, $badgePage].forEach(function(p){ p.classList.remove('active'); });
+      [$infoPage, $quizPage, $badgePage].forEach(function(p){ p.classList.remove('active'); });
       document.getElementById(pageId).classList.add('active');
     }
 
@@ -604,26 +712,47 @@
       reader.readAsDataURL(file);
     });
 
-    /* ========== 保存为图片 ========== */
+    /* ========== 保存为图片（支持手机保存到相册） ========== */
     function downloadBadge(){
       var card = document.getElementById('badgeCard');
       var btns = $badgePage.querySelector('.action-row');
       if(btns) btns.style.visibility = 'hidden';
+      showToast('正在生成图片...');
 
       try{
         var w = card.offsetWidth, h = card.offsetHeight;
+
+        // 收集所有 CSS 规则行内注入
+        var styles = '';
+        try{
+          var sheets = document.styleSheets;
+          for(var i=0; i<sheets.length; i++){
+            try{
+              var rules = sheets[i].cssRules || sheets[i].rules;
+              for(var j=0; j<rules.length; j++){
+                styles += rules[j].cssText + '\n';
+              }
+            }catch(e){}
+          }
+        }catch(e){}
+
+        // 克隆卡片并替换所有外部图片为 data URL
         var clone = card.cloneNode(true);
-        clone.style.position = 'fixed';
-        clone.style.top = '0'; clone.style.left = '0';
-        clone.style.width = w + 'px';
-        clone.style.zIndex = '-9999';
-        clone.style.transform = 'none';
-        document.body.appendChild(clone);
+        var imgs = clone.querySelectorAll('img');
+        imgs.forEach(function(img){
+          // 如果原始图片已转换为 data URL，直接使用
+          var origImg = document.getElementById(img.id);
+          if(origImg && origImg.src.startsWith('data:')){
+            img.src = origImg.src;
+          }
+        });
 
         var svgStr = '<svg xmlns="http://www.w3.org/2000/svg" width="'+w+'" height="'+h+'">'
           + '<foreignObject width="100%" height="100%">'
-          + '<div xmlns="http://www.w3.org/1999/xhtml">' + clone.outerHTML + '</div></foreignObject></svg>';
-        document.body.removeChild(clone);
+          + '<div xmlns="http://www.w3.org/1999/xhtml">'
+          + '<style>' + styles + '</style>'
+          + clone.outerHTML
+          + '</div></foreignObject></svg>';
 
         var canvas = document.createElement('canvas');
         canvas.width = w*2; canvas.height = h*2;
@@ -637,12 +766,28 @@
         img.onload = function(){
           ctx.drawImage(img, 0, 0, w, h);
           URL.revokeObjectURL(url);
-          var link = document.createElement('a');
-          link.download = 'CUHKSZ_工作证_' + (userName || 'card') + '.png';
-          link.href = canvas.toDataURL('image/png');
-          link.click();
-          if(btns) btns.style.visibility = '';
-          showToast('工作证已保存！');
+
+          canvas.toBlob(function(blob){
+            var file = new File([blob], 'CUHKSZ_工作证_' + (userName || 'card') + '.png', { type:'image/png' });
+
+            // 手机端：使用分享 API 保存到相册
+            if(navigator.share && navigator.canShare && navigator.canShare({files:[file]})){
+              navigator.share({
+                files: [file],
+                title: '学生会工作证'
+              }).then(function(){
+                if(btns) btns.style.visibility = '';
+                showToast('已保存到相册！');
+              }).catch(function(){
+                fallbackDownload(canvas);
+                if(btns) btns.style.visibility = '';
+              });
+            } else {
+              fallbackDownload(canvas);
+              if(btns) btns.style.visibility = '';
+              showToast('工作证已保存！');
+            }
+          }, 'image/png');
         };
         img.onerror = function(){
           URL.revokeObjectURL(url);
@@ -656,16 +801,23 @@
       }
     }
 
+    function fallbackDownload(canvas){
+      var link = document.createElement('a');
+      link.download = 'CUHKSZ_工作证_' + (userName || 'card') + '.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+
     /* ========== 快捷键 ========== */
     document.addEventListener('keydown', function(e){
       if(e.key === 'Escape'){
-        if($badgePage.classList.contains('active')) goToResult();
-        else if($resultPage.classList.contains('active')) goToQuiz();
+        if($badgePage.classList.contains('active')) goToQuiz();
+        else if($quizPage.classList.contains('active')) switchPage('infoPage');
       }
     });
 
     /* ========== 初始化 ========== */
-    renderQuestion();
+    photoPreview.src = DEFAULT_PHOTO;
   </script>
 </body>
 </html>
